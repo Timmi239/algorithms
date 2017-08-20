@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List
 
 import pytest
 
@@ -9,11 +9,11 @@ class NotFoundException(Exception):
     pass
 
 
-def binary_search(a: List[int], el: int):
+def binary_search(a: List[int], el: int) -> Index:
     return _binary_search(a, el, 0, len(a) - 1)
 
 
-def _binary_search(a: List[int], el: int, left: Index = 0, right: Optional[Index] = None) -> Index:
+def _binary_search(a: List[int], el: int, left: Index, right: Index) -> Index:
     if left == right:
         if a[left] != el:
             raise NotFoundException()
