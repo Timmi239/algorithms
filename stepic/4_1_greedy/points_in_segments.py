@@ -10,8 +10,7 @@
 def main():
     segment_list = inp()
     segment_list.sort(key=lambda x: x[1])
-    result = []
-    result = recursion(result, segment_list)
+    result = recursion([], segment_list)
     print(len(result))
     print(' '.join(list(map(str, result))))
 
@@ -19,10 +18,7 @@ def main():
 def recursion(result, segment_list):
     if segment_list:
         result.append(segment_list[0][1])
-        new_segment_list = []
-        for segment in segment_list:
-            if segment[0] > segment_list[0][1]:
-                new_segment_list.append(segment)
+        new_segment_list = [segment for segment in segment_list if segment[0] > segment_list[0][1]]
         recursion(result, new_segment_list)
     return result
 
