@@ -12,18 +12,16 @@ def main():
 
 
 def game(first, second):
-    numbers_dict = {}
-    for lst in [first, second]:
-        for i in lst:
-            numbers_dict[i] = 0
+    unique_numbers = set(first + second)
 
+    pairs = 0
     for i in first:
         for j in second:
             result = i ^ j
-            if numbers_dict.get(result) is not None:
-                numbers_dict[result] += 1
+            if result in unique_numbers:
+                pairs += 1
 
-    return KOYOMI if sum(numbers_dict.values()) % 2 else KAREN
+    return KOYOMI if pairs % 2 else KAREN
 
 
 def test1():
