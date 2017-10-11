@@ -17,8 +17,7 @@ def game(first, second):
     pairs = 0
     for i in first:
         for j in second:
-            result = i ^ j
-            if result in unique_numbers:
+            if i ^ j in unique_numbers:
                 pairs += 1
 
     return KOYOMI if pairs % 2 else KAREN
