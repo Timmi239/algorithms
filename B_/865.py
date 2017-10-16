@@ -1,21 +1,17 @@
-class Member:
-    def __init__(self, parts, a_happy, b_happy):
-        self.parts = parts
-        self.a_happy = a_happy
-        self.b_happy = b_happy
+from collections import namedtuple
 
-    @property
-    def happy_diff(self):
-        return self.a_happy - self.b_happy
 
-    def __repr__(self):
-        return '{} {} {}'.format(self.parts, self.a_happy, self.b_happy)
+Member = namedtuple('Member', ['parts', 'a_happy', 'b_happy'])
+
+
+def happy_diff(m):
+    return m.a_happy - m.b_happy
 
 
 def main():
     input_strings_members, parts = read_input()
-    members = prepare_members(input_strings_members)
-    print(count_parts(members, parts))
+    a_members, b_members, other_members = prepare_members(input_strings_members)
+    print(count_parts(a_members, b_members, other_members, parts))
 
 
 def read_input():
@@ -25,25 +21,32 @@ def read_input():
 
 
 def prepare_members(input_strings_members):
-    return [Member(*map(int, line.split())) for line in input_strings_members]
+    a_members = []
+    b_members = []
+    other_members = []
+    for line in input_strings_members:
+        m = Member(*map(int, line.split()))
+        if happy_diff(m) > 0:
+            a_members.append(m)
+        elif happy_diff(m) < 0:
+            b_members.append(m)
+        else:
+            other_members.append(m)
+    return a_members, b_members, other_members
 
 
-def count_parts(members, parts_in_one):
-    a_members = list(filter(lambda m: m.happy_diff > 0, members))
-    a_members.sort(key=lambda m: m.happy_diff, reverse=False)
+def count_parts(a_members, b_members, other_members, parts_in_one):
+    a_members.sort(key=lambda m: happy_diff(m), reverse=False)
     a_modulo = sum(m.parts for m in a_members) % parts_in_one
 
     a_modulo_members, a_happy_members = split_members_into_happy_groups(a_members, a_modulo)
     a_happy = sum(m.a_happy * m.parts for m in a_happy_members)
 
-    b_members = list(filter(lambda m: m.happy_diff < 0, members))
-    b_members.sort(key=lambda m: m.happy_diff, reverse=True)
+    b_members.sort(key=lambda m: happy_diff(m), reverse=True)
     b_modulo = sum(m.parts for m in b_members) % parts_in_one
 
     b_modulo_members, b_happy_members = split_members_into_happy_groups(b_members, b_modulo)
     b_happy = sum(m.b_happy * m.parts for m in b_happy_members)
-
-    other_members = list(filter(lambda m: m.happy_diff == 0, members))
 
     last_happy = count_last_pizzas_happy(a_modulo_members, b_modulo_members, other_members, parts_in_one)
 
@@ -88,15 +91,15 @@ def count_last_pizzas_happy(a, b, other, parts_in_one):
 
 
 def test1():
-    members = prepare_members(['7 4 7', '5 8 8', '12 5 8', '6 11 6', '3 3 7', '5 9 6'])
-    assert count_parts(members, 10) == 314
+    a, b, c = prepare_members(['7 4 7', '5 8 8', '12 5 8', '6 11 6', '3 3 7', '5 9 6'])
+    assert count_parts(a, b, c, 10) == 314
 
 
 def test2():
-    members = prepare_members(['3 5 7', '4 6 7', '5 9 5'])
-    assert count_parts(members, 12) == 84
+    a, b, c = prepare_members(['3 5 7', '4 6 7', '5 9 5'])
+    assert count_parts(a, b, c, 12) == 84
 
 
 def test3():
-    members = prepare_members(['2 3 1', '2 2 2', '2 1 3'])
-    assert count_parts(members, 3) == 16
+    a, b, c = prepare_members(['2 3 1', '2 2 2', '2 1 3'])
+    assert count_parts(a, b, c, 3) == 16
