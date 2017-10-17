@@ -60,17 +60,18 @@ def split_members_into_happy_groups(members, modulo):
 
     for i in range(len(members)):
         m = members[i]
-        if m.parts + current_modulo <= modulo:
-            current_modulo += m.parts
+        new_current_modulo = current_modulo + m.parts
+        if new_current_modulo < modulo:
             modulo_members.append(m)
-        else:
-            remaining_for_modulo_parts = modulo - current_modulo
-            if remaining_for_modulo_parts > 0:
-                modulo_members.append(Member(remaining_for_modulo_parts, m.a_happy, m.b_happy))
-            happy_members.append(Member(m.parts - remaining_for_modulo_parts, m.a_happy, m.b_happy))
-            if i < len(members) - 1:
-                happy_members.extend(members[i+1:])
-            break
+            current_modulo = new_current_modulo
+            continue
+
+        modulo_members.append(Member(modulo - current_modulo, m.a_happy, m.b_happy))
+        if new_current_modulo > modulo:
+            happy_members.append(Member(new_current_modulo - modulo, m.a_happy, m.b_happy))
+        if (i + 1) < len(members):
+            happy_members.extend(members[(i + 1):])
+        break
 
     return modulo_members, happy_members
 
@@ -78,43 +79,13 @@ def split_members_into_happy_groups(members, modulo):
 def count_last_pizzas_happy(a, b, other, parts_in_one):
     last_sorted_members = a + other + b
 
-    current_parts = 0
-    possible_a_members_happy = 0
-    other_b_members_happy = 0
-    for i in range(len(last_sorted_members)):
-        m = last_sorted_members[i]
-        new_current_parts = current_parts + m.parts
-        if new_current_parts < parts_in_one:
-            possible_a_members_happy += m.parts * m.a_happy
-            current_parts = new_current_parts
-            continue
+    if sum(m.parts for m in last_sorted_members) <= parts_in_one:
+        return max(
+            sum(m.a_happy * m.parts for m in last_sorted_members),
+            sum(m.b_happy * m.parts for m in last_sorted_members)
+        )
 
-        possible_a_members_happy += (parts_in_one - current_parts) * m.a_happy
-        if new_current_parts > parts_in_one:
-            other_b_members_happy = (new_current_parts - parts_in_one) * m.b_happy
-        if i + i < len(last_sorted_members):
-            other_b_members_happy += sum(m.parts * m.b_happy for m in last_sorted_members[(i + 1):])
-        break
-
-    current_parts = 0
-    possible_b_members_happy = 0
-    other_a_members_happy = 0
-    for i in reversed(range(len(last_sorted_members))):
-        m = last_sorted_members[i]
-        new_current_parts = current_parts + m.parts
-        if new_current_parts < parts_in_one:
-            possible_b_members_happy += m.parts * m.b_happy
-            current_parts = new_current_parts
-            continue
-
-        possible_b_members_happy += (parts_in_one - current_parts) * m.b_happy
-        if new_current_parts > parts_in_one:
-            other_a_members_happy = (new_current_parts - parts_in_one) * m.a_happy
-        if i + i < len(last_sorted_members):
-            other_a_members_happy += sum(m.parts * m.a_happy for m in last_sorted_members[:i])
-        break
-
-    return max(possible_a_members_happy + other_b_members_happy, possible_b_members_happy + other_a_members_happy)
+    return sum(m.a_happy * m.parts for m in a + other) + sum(m.b_happy * m.parts for m in b)
 
 
 def test1():
@@ -139,7 +110,35 @@ def test4():
             '2 3 1',
         ]
     )
-    assert count_parts(a, b, c, 3) == 12
+    assert count_parts(a, b, c, 3) == 14
+
+
+def test5():
+    a, b, c = prepare_members(
+        [
+            '2 1 2',
+            '2 2 1',
+            '2 1 3',
+            '2 3 1',
+            '2 1 4',
+            '2 4 1',
+        ]
+    )
+    assert count_parts(a, b, c, 3) == (8 + 6 + 4) * 2
+
+
+def test6():
+    a, b, c = prepare_members(
+        [
+            '2 1 2',
+            '2 2 1',
+            '2 1 3',
+            '2 3 1',
+            '2 1 4',
+            '2 4 1',
+        ]
+    )
+    assert count_parts(a, b, c, 5) == 16 + 16 + 3
 
 
 def test_without_last_pizzas():
