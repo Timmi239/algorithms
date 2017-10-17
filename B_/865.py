@@ -77,17 +77,44 @@ def split_members_into_happy_groups(members, modulo):
 
 def count_last_pizzas_happy(a, b, other, parts_in_one):
     last_sorted_members = a + other + b
-    splitted_members_into_pieces = []
-    for m in last_sorted_members:
-        splitted_members_into_pieces += [Member(1, m.a_happy, m.b_happy) for i in range(m.parts)]
 
-    last_length = min(len(splitted_members_into_pieces), parts_in_one)
+    current_parts = 0
+    possible_a_members_happy = 0
+    other_b_members_happy = 0
+    for i in range(len(last_sorted_members)):
+        m = last_sorted_members[i]
+        new_current_parts = current_parts + m.parts
+        if new_current_parts < parts_in_one:
+            possible_a_members_happy += m.parts * m.a_happy
+            current_parts = new_current_parts
+            continue
 
-    a_possible_happy = sum(m.parts * m.a_happy for m in splitted_members_into_pieces[:last_length])
-    other_b_happy = sum(m.parts * m.b_happy for m in splitted_members_into_pieces[last_length:])
-    b_possible_happy = sum(m.parts * m.b_happy for m in splitted_members_into_pieces[-last_length:])
-    other_a_happy = sum(m.parts * m.a_happy for m in splitted_members_into_pieces[:-last_length])
-    return max(a_possible_happy + other_b_happy, b_possible_happy + other_a_happy)
+        possible_a_members_happy += (parts_in_one - current_parts) * m.a_happy
+        if new_current_parts > parts_in_one:
+            other_b_members_happy = (new_current_parts - parts_in_one) * m.b_happy
+        if i + i < len(last_sorted_members):
+            other_b_members_happy += sum(m.parts * m.b_happy for m in last_sorted_members[(i + 1):])
+        break
+
+    current_parts = 0
+    possible_b_members_happy = 0
+    other_a_members_happy = 0
+    for i in reversed(range(len(last_sorted_members))):
+        m = last_sorted_members[i]
+        new_current_parts = current_parts + m.parts
+        if new_current_parts < parts_in_one:
+            possible_b_members_happy += m.parts * m.b_happy
+            current_parts = new_current_parts
+            continue
+
+        possible_b_members_happy += (parts_in_one - current_parts) * m.b_happy
+        if new_current_parts > parts_in_one:
+            other_a_members_happy = (new_current_parts - parts_in_one) * m.a_happy
+        if i + i < len(last_sorted_members):
+            other_a_members_happy += sum(m.parts * m.a_happy for m in last_sorted_members[:i])
+        break
+
+    return max(possible_a_members_happy + other_b_members_happy, possible_b_members_happy + other_a_members_happy)
 
 
 def test1():
@@ -103,3 +130,23 @@ def test2():
 def test3():
     a, b, c = prepare_members(['2 3 1', '2 2 2', '2 1 3'])
     assert count_parts(a, b, c, 3) == 16
+
+
+def test4():
+    a, b, c = prepare_members(
+        [
+            '20000 3 1',
+            '20000 2 2',
+            '20000 1 3',
+            '20000 3 1',
+            '20000 2 2',
+            '20000 1 3',
+            '20000 3 1',
+            '20000 2 2',
+            '20000 1 3'
+        ]
+    )
+    assert count_parts(a, b, c, 30000)
+
+
+main()
