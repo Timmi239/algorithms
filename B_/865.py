@@ -132,7 +132,27 @@ def test3():
     assert count_parts(a, b, c, 3) == 16
 
 
+def test4():
+    a, b, c = prepare_members(
+        [
+            '2 1 4',
+            '2 3 1',
+        ]
+    )
+    assert count_parts(a, b, c, 3) == 12
+
+
 def test_without_last_pizzas():
+    a, b, c = prepare_members(
+        [
+            '3 3 1',
+            '3 5 6'
+        ]
+    )
+    assert count_parts(a, b, c, 3) == 27
+
+
+def test_with_one_last_pizza():
     a, b, c = prepare_members(
         [
             '2 3 1',
@@ -142,4 +162,27 @@ def test_without_last_pizzas():
     assert count_parts(a, b, c, 3) == 11
 
 
-main()
+def test_with_two_last_pizzas():
+    a, b, c = prepare_members(
+        [
+            '2 3 4',
+            '2 3 1',
+            '1 1 1'
+        ]
+    )
+    assert count_parts(a, b, c, 3) == 15
+
+
+def test_without_different_happies():
+    a, b, c = prepare_members(
+        [
+            '2 2 2',
+            '4 1 1',
+            '5 6 6'
+        ]
+    )
+    assert count_parts(a, b, c, 3) == 38
+
+
+if __name__ == "__main__":
+    main()
