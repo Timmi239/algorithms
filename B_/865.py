@@ -132,21 +132,14 @@ def test3():
     assert count_parts(a, b, c, 3) == 16
 
 
-def test4():
+def test_without_last_pizzas():
     a, b, c = prepare_members(
         [
-            '20000 3 1',
-            '20000 2 2',
-            '20000 1 3',
-            '20000 3 1',
-            '20000 2 2',
-            '20000 1 3',
-            '20000 3 1',
-            '20000 2 2',
-            '20000 1 3'
+            '2 3 1',
+            '1 5 6'
         ]
     )
-    assert count_parts(a, b, c, 30000)
+    assert count_parts(a, b, c, 3) == 11
 
 
 main()
